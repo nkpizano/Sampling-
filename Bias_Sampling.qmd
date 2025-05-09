@@ -1,23 +1,130 @@
 ---
-title: "Bias_Sampling_Module"
-format: revealjs
+title: "Bias Sampling Module"
+format: 
+  revealjs: 
+    slide-number: true
+    chalkboard:  
+      buttons: true
+    preview-links: auto
 ---
 
-## Quarto
+## Overview
 
-Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
+The following module focuses on sampling and ethical and social justices issues that can arise. This module begins with a real-world example ethical issue related to sampling.
 
-## Bullets
+## Agenda
 
-When you click the **Render** button a document will be generated that includes:
+1 Amazon's Automated Hiring\
+2. Defining Sampling Bias
 
--   Content authored with markdown
--   Output from executable code
+-   define population
+-   define sample
+-   define sampling bias broadly
 
-## Code
+3.  Contributing Factors of Sampling Bias
+4.  The Simpson's Paradox
+5.  Implications of Sampling Bias
+6.  Ethical Practices to Mitigate Sampling Bias
 
-When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+## Real World Example: Amazon's Automated Hiring Tool {.scrollable}
+
+::::: columns
+::: {.column width="50%"}
+In 2014, engineers at Amazon were tasked with automating the hiring process using machine learning (ML) techniques. Amazon’s AI algorithm was developed to review applicants uploaded resumes and provide job candidate scores (1 - 5) using the resumes of current employees over the past decade. Soon after the algorithms were released, Amazon’s researchers discovered that the hiring AI tool was biased against female applicants. Specifically, fewer qualified women were not being considered for more technical positions, such as software engineers and data scientists. A review of the training data set, Amazon’s employee resumes, revealed that mostly male employees occupied the technical positions.
+:::
+
+::: {.column width="50%"}
+-   Take a minute to reflect on the example and 2 minutes to discuss.
+
+-   Discuss in groups your observations, questions, and thoughts.
+
+<iframe width="320" height="100" src="https://vclock.com/embed/timer/#countdown=00:03:00&amp;enabled=0&amp;seconds=300&amp;theme=0&amp;ampm=1&amp;sound=xylophone" frameborder="0" allowfullscreen>
+
+</iframe>
+:::
+:::::
+
+::: notes
+- There are several points related ethical or social justices that can be discussed: 
+  - Some students may bring up sample size. Amazon did not provide information related to the number of and quality of resumes that were used to create the hiring algorithm or any additional features. However, the number and the quality of the sample of resumes is key. 
+  - You could spend time discussing how the data scientists could mitigate bias, besides using female resumes. 
+  - Also, notice that Amazon has a data scientist review for bias after the algorithm was employed, which is key to upholding ethical and social justice practices. 
+  - 
+  
+:::
+## Sampling
+
+**Sampling consists of selecting some part, a sample, of a population to observe so that one may estimate something about the whole population.**
+
+-   e.g. gathering grades from a 7th-grade history class to estimate the academic progress of 7th grade students at Westlake Middle School. 
+
+-   e.g. surveying the mortality rate among a flock of canary birds on Canary Island to assess the death rate of all canary birds in the Macaronesia region.
+
+-   Sampling concerns that should be addressed :
+
+    -   How data are selected, out of all the possibilities?
+    -   Was the selection process under the control of investigators or was the process pre-determined by nature or happenstance?
+    -   How to use such data to make inferences about the larger population of interest?
+
+## How to select a sample?
+
+-   Through a sampling design -simple random sampling design
+
+## Random Sampling
+
+## Sampling Bias
+
+-   The uncertainty in estimates obtained by sampling thus stems from the fact that only part of the population is observed.
+-   If for every possible sample the estimate is quite close to the true value of the population characteristic, there is little uncertainty associated with the sampling strategy; such a strategy is considered desirable.
+
+## Representative data
+
+## Simpson's Paradox
+
+-   Simpson’s Paradox is a statistical phenomenon in which a trend that appears in different groups of data reverses or disappears when the groups are combined.
 
 ```{r}
-1 + 1
+# Load necessary package
+library(dplyr)
+library(ggplot2)
+
+# Simulate data for two groups (Group A and Group B)
+set.seed(123)
+
+# Group A: High success in both subgroups
+group_A_men <- data.frame(Group = "A", Gender = "Male", Success = rbinom(100, 1, 0.9))
+group_A_women <- data.frame(Group = "A", Gender = "Female", Success = rbinom(20, 1, 0.3))  # fewer women
+
+# Group B: Moderate success in both subgroups
+group_B_men <- data.frame(Group = "B", Gender = "Male", Success = rbinom(20, 1, 0.8))     # fewer men
+group_B_women <- data.frame(Group = "B", Gender = "Female", Success = rbinom(100, 1, 0.6))
+
+# Combine data
+simpson_data <- bind_rows(group_A_men, group_A_women, group_B_men, group_B_women)
+
+# Summary by group and gender
+summary_by_gender <- simpson_data %>%
+  group_by(Group, Gender) %>%
+  summarise(Success_Rate = mean(Success), Count = n())
+
+# Summary by group only
+summary_overall <- simpson_data %>%
+  group_by(Group) %>%
+  summarise(Success_Rate = mean(Success), Count = n())
+
+print("Success rate by Group and Gender:")
+print(summary_by_gender)
+
+print("Overall success rate by Group:")
+print(summary_overall)
+
+# Plot: Group vs Success Rate by Gender and Overall
+ggplot(simpson_data, aes(x = Group, y = Success, fill = Gender)) +
+  stat_summary(fun = mean, geom = "bar", position = "dodge") +
+  geom_hline(data = summary_overall, aes(yintercept = Success_Rate, color = Group),
+             linetype = "dashed", size = 1) +
+  labs(title = "Simpson's Paradox Example",
+       subtitle = "Dashed lines = overall success rate by group",
+       y = "Success Rate") +
+  theme_minimal()
 ```
